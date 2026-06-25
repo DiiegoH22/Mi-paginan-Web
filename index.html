@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D4mianLD — Streamer</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green: #53fc18;
+    --green-dim: #2eab08;
+    --green-glow: rgba(83,252,24,0.15);
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: rgba(83,252,24,0.2);
+    --text: #f0f0f0;
+    --muted: #888;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* SCANLINES overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.06) 2px,
+      rgba(0,0,0,0.06) 4px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem 1.5rem;
+    overflow: hidden;
+  }
+
+  .hero-bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(83,252,24,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(83,252,24,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    z-index: 0;
+  }
+
+  .hero-bg-radial {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(83,252,24,0.07) 0%, transparent 70%);
+    z-index: 0;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 700px;
+  }
+
+  .kick-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(83,252,24,0.1);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--green);
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+  }
+
+  .kick-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .alias {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(3.5rem, 12vw, 7rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -1px;
+    margin-bottom: 0.6rem;
+    color: var(--text);
+    position: relative;
+    display: inline-block;
+  }
+
+  .alias .four {
+    color: var(--green);
+    position: relative;
+    display: inline-block;
+  }
+
+  .alias:hover .four {
+    animation: glitch 0.4s steps(2) 1;
+  }
+
+  @keyframes glitch {
+    0%   { transform: translate(0); text-shadow: none; }
+    20%  { transform: translate(-3px, 1px); text-shadow: 2px 0 #ff0055; }
+    40%  { transform: translate(3px, -1px); text-shadow: -2px 0 #0055ff; }
+    60%  { transform: translate(-2px, 2px); text-shadow: 2px 0 #ff0055; }
+    80%  { transform: translate(2px, -1px); text-shadow: -2px 0 #0055ff; }
+    100% { transform: translate(0); text-shadow: none; }
+  }
+
+  .tagline {
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    color: var(--muted);
+    font-weight: 400;
+    max-width: 480px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.6;
+  }
+
+  .cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--green);
+    color: #0a0a0a;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 24px rgba(83,252,24,0.4);
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    z-index: 1;
+    animation: bounce 2s ease-in-out infinite;
+  }
+
+  .scroll-hint::after {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 32px;
+    background: linear-gradient(to bottom, var(--muted), transparent);
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(6px); }
+  }
+
+  /* ─── SECTIONS ─── */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 5rem 1.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 0.8rem;
+  }
+
+  .section-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(1.8rem, 5vw, 2.6rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    color: var(--text);
+  }
+
+  /* ─── SOBRE MÍ ─── */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  @media (max-width: 600px) {
+    .about-grid { grid-template-columns: 1fr; }
+  }
+
+  .about-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .about-card:hover {
+    border-color: var(--green);
+    background: var(--surface2);
+  }
+
+  .about-card .icon {
+    font-size: 1.8rem;
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+
+  .about-card h3 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .about-card p {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ─── REDES ─── */
+  .socials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .social-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 2rem 1.5rem;
+    text-decoration: none;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    color: var(--text);
+  }
+
+  .social-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .social-card.kick   { --acc: #53fc18; }
+  .social-card.tiktok { --acc: #ee1d52; }
+  .social-card.ig     { --acc: #e1306c; }
+  .social-card.yt     { --acc: #ff0000; }
+
+  .social-card:hover {
+    border-color: var(--acc);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px var(--acc);
+  }
+
+  .social-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.05);
+    transition: background 0.2s;
+  }
+
+  .social-card:hover .social-icon {
+    background: rgba(255,255,255,0.1);
+  }
+
+  .social-icon svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .social-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--acc);
+  }
+
+  .social-handle {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    position: relative;
+    z-index: 1;
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 0 auto;
+    max-width: 900px;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 3rem 1.5rem;
+    font-size: 13px;
+    color: #444;
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 1px;
+  }
+
+  footer span { color: var(--green); }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-grid"></div>
+  <div class="hero-bg-radial"></div>
+
+  <div class="hero-content">
+    <div class="kick-badge">
+      <span class="kick-dot"></span>
+      Streamer en Kick
+    </div>
+
+    <h1 class="alias">D<span class="four">4</span>mianLD</h1>
+
+    <p class="tagline">
+      Gaming, buena vibra y streams sin filtro.<br>
+      Pasate a la transmisión, el chat siempre está activo.
+    </p>
+
+    <a href="https://kick.com/d4mianld" target="_blank" rel="noopener" class="cta-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 3 3-3 3 3-3 3-3-3z" fill="currentColor"/>
+      </svg>
+      Ver en Kick
+    </a>
+  </div>
+
+  <div class="scroll-hint">scroll</div>
+</section>
+
+<hr class="divider">
+
+<!-- SOBRE MÍ -->
+<section id="sobre-mi">
+  <p class="section-label">// intro</p>
+  <h2 class="section-title">¿Quién es D4mianLD?</h2>
+  <p style="color: var(--muted); line-height: 1.7; max-width: 600px;">
+    Streamer paraguayo con ganas de construir una comunidad real. Juego de todo, hablo sin vueltas y el chat manda. Si buscás streams donde pasan cosas de verdad, llegaste al lugar.
+  </p>
+
+  <div class="about-grid">
+    <div class="about-card">
+      <span class="icon">🎮</span>
+      <h3>Gaming</h3>
+      <p>Variado de géneros, siempre con la intención de pasarla bien y que vos también la pases bien.</p>
+    </div>
+    <div class="about-card">
+      <span class="icon">💬</span>
+      <h3>Chat activo</h3>
+      <p>No streameo en silencio. El chat forma parte del show, cada mensaje cuenta.</p>
+    </div>
+    <div class="about-card">
+      <span class="icon">🇵🇾</span>
+      <h3>Desde Paraguay</h3>
+      <p>Representando al país desde la plataforma que le da lugar a los creadores de verdad.</p>
+    </div>
+    <div class="about-card">
+      <span class="icon">📡</span>
+      <h3>Kick first</h3>
+      <p>Mi casa es Kick. Sin censura, sin algoritmos raros. Stream puro.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- REDES -->
+<section id="redes">
+  <p class="section-label">// encuéntrame en</p>
+  <h2 class="section-title">Mis redes sociales</h2>
+
+  <div class="socials-grid">
+
+    <!-- KICK -->
+    <a href="https://kick.com/d4mianld" target="_blank" rel="noopener" class="social-card kick">
+      <div class="social-icon">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="24" height="24" rx="4" fill="#53fc18"/>
+          <path d="M6 4h3v6.5L13.5 4H17l-5 7 5 9h-3.5L10 13 9 14.5V20H6V4z" fill="#0a0a0a"/>
+        </svg>
+      </div>
+      <span class="social-name">Kick</span>
+      <span class="social-handle">@d4mianld</span>
+    </a>
+
+    <!-- TIKTOK -->
+    <a href="https://www.tiktok.com/@d4mianld" target="_blank" rel="noopener" class="social-card tiktok">
+      <div class="social-icon">
+        <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V9.41a8.16 8.16 0 0 0 4.77 1.52V7.48a4.85 4.85 0 0 1-1-.79z"/>
+        </svg>
+      </div>
+      <span class="social-name">TikTok</span>
+      <span class="social-handle">@d4mianld</span>
+    </a>
+
+    <!-- INSTAGRAM -->
+    <a href="https://www.instagram.com/d4mianld" target="_blank" rel="noopener" class="social-card ig">
+      <div class="social-icon">
+        <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
+        </svg>
+      </div>
+      <span class="social-name">Instagram</span>
+      <span class="social-handle">@d4mianld</span>
+    </a>
+
+    <!-- YOUTUBE -->
+    <a href="https://youtube.com/@d4mianld" target="_blank" rel="noopener" class="social-card yt">
+      <div class="social-icon">
+        <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+        </svg>
+      </div>
+      <span class="social-name">YouTube</span>
+      <span class="social-handle">@d4mianld</span>
+    </a>
+
+  </div>
+</section>
+
+<hr class="divider">
+
+<footer>
+  Hecho con 💚 &mdash; <span>D4mianLD</span> &copy; 2025
+</footer>
+
+</body>
+</html>
